@@ -1551,6 +1551,11 @@ public class MessageList
             onEditPrefs();
             return true;
         }
+        case R.id.trash: {
+        	setAllSelected(true);
+        	onEmptyMessages();
+        	return true;
+        }
         }
 
         if (mQueryString != null) {
@@ -1616,6 +1621,23 @@ public class MessageList
             return super.onOptionsItemSelected(item);
         }
         }
+    }
+    
+    private void onEmptyMessages() {
+    	final List<MessageInfoHolder> selection = new ArrayList<MessageInfoHolder>();
+    	synchronized (mAdapter.messages) {
+    		for (final MessageInfoHolder holder : mAdapter.messages) {
+    			if (holder.selected) {
+    				selection.add(holder);
+    			}
+    		}
+    	}
+    	final List<Message> messagesToRemove = new ArrayList<Message>();
+    	for (MessageInfoHolder holder : selection) {
+    		messagesToRemove.add(holder.message);
+    	}
+    	mHandler.removeMessages(selection);
+    	mController.deleteMessages(messagesToRemove.toArray(EMPTY_MESSAGE_ARRAY), null);
     }
 
     private final int[] batch_ops = { R.id.batch_copy_op, R.id.batch_delete_op, R.id.batch_flag_op,
